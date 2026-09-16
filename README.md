@@ -1,98 +1,153 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Farmacia - Backend (API REST)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API REST para la gestión de una farmacia, desarrollada con **NestJS**, **TypeORM** y **PostgreSQL**. Permite administrar categorías, medicamentos y empleados.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Trabajo práctico de **Programación 3** — IES 9-023.
 
-## Description
+## Autores
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Gustavo García**
+- **Nahuel Ghilardi Salinas**
 
-## Project setup
+## Tecnologías
+
+- [NestJS](https://nestjs.com/) (Node.js + TypeScript)
+- [TypeORM](https://typeorm.io/)
+- [PostgreSQL](https://www.postgresql.org/)
+- class-validator / class-transformer (validación de datos)
+
+## Requisitos previos
+
+- Node.js **22.13 o superior** (versiones anteriores dan error de compatibilidad con ESLint)
+- Yarn
+- PostgreSQL instalado y en ejecución
+
+## Instalación
+
+1. Clonar el repositorio:
+
+   ```bash
+   git clone <url-del-repositorio>
+   cd farmacia-programacion
+   ```
+
+2. Instalar dependencias:
+
+   ```bash
+   yarn install
+   ```
+
+3. Crear la base de datos en PostgreSQL:
+
+   ```sql
+   CREATE DATABASE farmacia;
+   ```
+
+4. Configurar la conexión en `src/app.module.ts` con tu usuario y contraseña de PostgreSQL:
+
+   ```typescript
+   TypeOrmModule.forRoot({
+     type: 'postgres',
+     host: 'localhost',
+     port: 5432,
+     username: 'postgres',
+     password: 'tu_password',
+     database: 'farmacia',
+     autoLoadEntities: true,
+     synchronize: true,
+   }),
+   ```
+
+   > `synchronize: true` crea y actualiza las tablas automáticamente. Usarlo solo en desarrollo.
+
+## Ejecución
 
 ```bash
-$ yarn install
+# modo desarrollo (se reinicia al guardar cambios)
+yarn start:dev
+
+# modo normal
+yarn start
 ```
 
-## Compile and run the project
+La API queda disponible en `http://localhost:3000`.
 
-```bash
-# development
-$ yarn run start
+## Entidades
 
-# watch mode
-$ yarn run start:dev
+| Entidad         | Campos                                                       | Relación                         |
+| --------------- | ------------------------------------------------------------ | -------------------------------- |
+| **Categoria**   | id, nombre, descripcion (opcional)                           | Una categoría tiene muchos medicamentos |
+| **Medicamento** | id, nombre, laboratorio, precio, stock, categoria            | Cada medicamento pertenece a una categoría |
+| **Empleado**    | id, nombre, apellido, cargo, dni (único)                     | Sin relaciones                   |
 
-# production mode
-$ yarn run start:prod
+## Endpoints
+
+Cada entidad tiene un CRUD completo:
+
+| Método | Ruta                  | Descripción              |
+| ------ | --------------------- | ------------------------ |
+| GET    | `/categoria`          | Listar categorías        |
+| GET    | `/categoria/:id`      | Obtener una categoría    |
+| POST   | `/categoria`          | Crear categoría          |
+| PATCH  | `/categoria/:id`      | Actualizar categoría     |
+| DELETE | `/categoria/:id`      | Eliminar categoría       |
+| GET    | `/medicamento`        | Listar medicamentos (incluye su categoría) |
+| GET    | `/medicamento/:id`    | Obtener un medicamento   |
+| POST   | `/medicamento`        | Crear medicamento        |
+| PATCH  | `/medicamento/:id`    | Actualizar medicamento   |
+| DELETE | `/medicamento/:id`    | Eliminar medicamento     |
+| GET    | `/empleado`           | Listar empleados         |
+| GET    | `/empleado/:id`       | Obtener un empleado      |
+| POST   | `/empleado`           | Crear empleado           |
+| PATCH  | `/empleado/:id`       | Actualizar empleado      |
+| DELETE | `/empleado/:id`       | Eliminar empleado        |
+
+## Ejemplos de uso
+
+Crear una categoría (`POST /categoria`):
+
+```json
+{ "nombre": "Analgésicos", "descripcion": "Para el dolor y la fiebre" }
 ```
 
-## Run tests
+Crear un medicamento (`POST /medicamento`), indicando el `id` de una categoría existente:
 
-```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+```json
+{
+  "nombre": "Ibuprofeno 600mg",
+  "laboratorio": "Bagó",
+  "precio": 1500,
+  "stock": 100,
+  "categoria": { "id": 1 }
+}
 ```
 
-## Deployment
+Crear un empleado (`POST /empleado`):
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+```json
+{ "nombre": "Juan", "apellido": "Pérez", "cargo": "Farmacéutico", "dni": "30123456" }
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Notas
 
-## Resources
+- **Validaciones:** los datos de entrada se validan con `ValidationPipe`. Si falta un campo obligatorio o un valor no es válido (por ejemplo, un precio negativo), la API responde con error 400.
+- **Precio:** al leer medicamentos, el campo `precio` llega como texto (por ejemplo `"1500.00"`), porque PostgreSQL devuelve las columnas `decimal` como string. Al crear o actualizar, debe enviarse como número.
+- **CORS:** habilitado para `http://localhost:5173`, el puerto por defecto del frontend con Vite.
 
-Check out a few resources that may come in handy when working with NestJS:
+## Estructura del proyecto
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+```
+src/
+├── categoria/
+│   ├── dto/
+│   ├── entities/
+│   ├── categoria.controller.ts
+│   ├── categoria.module.ts
+│   └── categoria.service.ts
+├── medicamento/
+│   └── (misma estructura)
+├── empleado/
+│   └── (misma estructura)
+├── app.module.ts
+└── main.ts
+```

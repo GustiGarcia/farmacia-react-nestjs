@@ -1,20 +1,11 @@
-import { IsString, IsNumber, IsNotEmpty, IsPositive } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
 
-export class CreateMedicamentoDto {
+export class CreateCategoriaDto {
   @IsString()
   @IsNotEmpty()
   nombre: string;
 
   @IsString()
-  @IsNotEmpty()
-  laboratorio: string;
-
-  @IsNumber()
-  @IsPositive()
-  precio: number;
-
-  @IsNumber()
-  stock: number;
-
-  categoria: { id: number };
+  @IsOptional()
+  descripcion?: string;
 }

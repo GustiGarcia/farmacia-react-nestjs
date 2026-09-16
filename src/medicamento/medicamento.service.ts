@@ -18,13 +18,13 @@ export class MedicamentoService {
   }
 
   findAll() {
-    return this.medicamentoRepository.find({ relations: ['categoria'] });
+    return this.medicamentoRepository.find({ relations: { categoria: true } });
   }
 
   findOne(id: number) {
     return this.medicamentoRepository.findOne({
       where: { id },
-      relations: ['categoria'],
+      relations: { categoria: true },
     });
   }
 

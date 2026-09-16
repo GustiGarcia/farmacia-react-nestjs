@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { CategoriasModule } from './categoria/categorias.module';
+import { CategoriaModule } from './categoria/categoria.module';
 import { MedicamentoModule } from './medicamento/medicamento.module';
 import { EmpleadoModule } from './empleado/empleado.module';
 
@@ -18,7 +18,7 @@ import { EmpleadoModule } from './empleado/empleado.module';
       autoLoadEntities: true,
       synchronize: true, // OJO: solo en desarrollo, crea/actualiza tablas automáticamente
     }),
-    CategoriasModule,
+    CategoriaModule,
     MedicamentoModule,
     EmpleadoModule,
   ],
