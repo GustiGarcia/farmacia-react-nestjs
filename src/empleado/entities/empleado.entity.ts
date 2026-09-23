@@ -11,9 +11,18 @@ export class Empleado {
   @Column()
   apellido: string;
 
+  @Column({unique:true})
+  email: string;
+
+  @Column()
+  telefono: string;
+
   @Column()
   cargo: string;
 
   @Column({ unique: true })
   dni: string;
+
+  @Column({type:'date'})
+  fechaIngreso: Date;
 }

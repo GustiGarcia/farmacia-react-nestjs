@@ -1,4 +1,4 @@
-import { IsString, IsNumber, IsNotEmpty, IsPositive } from 'class-validator';
+import { IsString, IsNumber, IsNotEmpty, IsPositive, IsOptional, IsDateString } from 'class-validator';
 
 export class CreateMedicamentoDto {
   @IsString()
@@ -8,6 +8,13 @@ export class CreateMedicamentoDto {
   @IsString()
   @IsNotEmpty()
   laboratorio: string;
+
+  @IsString()
+  @IsOptional()
+  descripcion?:string;
+
+  @IsDateString()
+  fechaVencimiento:string;
 
   @IsNumber()
   @IsPositive()

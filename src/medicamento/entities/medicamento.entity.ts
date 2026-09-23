@@ -9,8 +9,14 @@ export class Medicamento {
   @Column()
   nombre: string;
 
+  @Column({nullable:true})
+  descripcion:string;
+
   @Column()
   laboratorio: string;
+
+  @Column({type:'date'})
+  fechaVencimiento:Date;
 
   @Column('decimal')
   precio: number;

@@ -9,11 +9,11 @@ import { EmpleadoModule } from './empleado/empleado.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      type: 'mysql',
       host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'admin',
+      port: 3307,
+      username: 'root',
+      password: 'root',
       database: 'farmacia',
       autoLoadEntities: true,
       synchronize: true, // OJO: solo en desarrollo, crea/actualiza tablas automáticamente
