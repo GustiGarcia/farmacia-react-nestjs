@@ -1,8 +1,19 @@
-import { Body, Controller, Delete, Get, Param, Post, Patch } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Patch,
+} from '@nestjs/common';
 import { MedicamentoService } from './medicamento.service';
 import { CreateMedicamentoDto } from './dto/create-medicamento.dto';
 import { UpdateMedicamentoDto } from './dto/update-medicamento.dto';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('medicamento')
 export class MedicamentoController {
   constructor(private readonly medicamentoService: MedicamentoService) {}
@@ -23,7 +34,10 @@ export class MedicamentoController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateMedicamentoDto: UpdateMedicamentoDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateMedicamentoDto: UpdateMedicamentoDto,
+  ) {
     return this.medicamentoService.update(+id, updateMedicamentoDto);
   }
 

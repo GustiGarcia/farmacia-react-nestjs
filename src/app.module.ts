@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { CategoriaModule } from './categoria/categoria.module';
 import { MedicamentoModule } from './medicamento/medicamento.module';
 import { EmpleadoModule } from './empleado/empleado.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -21,8 +22,9 @@ import { EmpleadoModule } from './empleado/empleado.module';
     CategoriaModule,
     MedicamentoModule,
     EmpleadoModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
