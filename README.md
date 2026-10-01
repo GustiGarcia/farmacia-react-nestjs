@@ -1,6 +1,6 @@
 # Farmacia - Backend (API REST)
 
-API REST para la gestión de una farmacia, desarrollada con **NestJS**, **TypeORM** y **MySQL** (ejecutándose en un contenedor **Docker**). Permite administrar categorías, medicamentos y empleados.
+API REST para la gestión de una farmacia, desarrollada con **NestJS**, **TypeORM** y **MySQL** (ejecutándose en un contenedor **Docker**). Permite administrar categorías, medicamentos y empleados, con **autenticación de usuarios** mediante JWT.
 
 Trabajo práctico de **Programación 3** — IES 9-023.
 
@@ -16,10 +16,11 @@ Trabajo práctico de **Programación 3** — IES 9-023.
 - [MySQL 8](https://www.mysql.com/) (vía Docker Compose)
 - [Docker](https://www.docker.com/) / Docker Compose
 - class-validator / class-transformer (validación de datos)
+- @nestjs/jwt + Passport + bcrypt (autenticación)
 
 ## Requisitos previos
 
-- Node.js **22.13 o superior** (versiones anteriores dan error de compatibilidad con ESLint)
+- Node.js **22.13 o superior**
 - Yarn
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y en ejecución
 
@@ -87,15 +88,36 @@ La API queda disponible en `http://localhost:3000`.
 
 > El contenedor de MySQL debe estar corriendo (`docker compose up -d`) antes de levantar el backend.
 
+## Autenticación
+
+La API usa autenticación con **JWT**. Las contraseñas se guardan hasheadas con **bcrypt** (nunca en texto plano).
+
+- **Registrarse:** `POST /auth/register` con `{ email, password }` crea un usuario.
+- **Iniciar sesión:** `POST /auth/login` con `{ email, password }` devuelve un token: `{ "access_token": "..." }`.
+- **Rutas protegidas:** todos los endpoints de medicamentos, categorías y empleados requieren enviar el token en la cabecera `Authorization: Bearer <token>`. Sin token válido responden **401 Unauthorized**.
+- Los endpoints de `/auth` (login y register) son públicos.
+
+El token vence en 1 día. La clave de firma está definida en el módulo de autenticación (en un proyecto real debería ir en una variable de entorno).
+
 ## Entidades
 
-| Entidad         | Campos                                                                                          | Relación                                   |
-| --------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------- |
-| **Categoria**   | id, nombre, descripcion (opcional)                                                               | Una categoría tiene muchos medicamentos     |
-| **Medicamento** | id, nombre, descripcion (opcional), laboratorio, fechaVencimiento, precio, stock, categoria       | Cada medicamento pertenece a una categoría  |
-| **Empleado**    | id, nombre, apellido, email (único), telefono, cargo, dni (único), fechaIngreso                  | Sin relaciones                              |
+| Entidad         | Campos                                                                                       | Relación                                   |
+| --------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **Usuario**     | id, email (único), password (hasheada)                                                        | Sin relaciones                              |
+| **Categoria**   | id, nombre, descripcion (opcional)                                                            | Una categoría tiene muchos medicamentos     |
+| **Medicamento** | id, nombre, descripcion (opcional), laboratorio, fechaVencimiento, precio, stock, categoria   | Cada medicamento pertenece a una categoría  |
+| **Empleado**    | id, nombre, apellido, email (único), telefono, cargo, dni (único), fechaIngreso              | Sin relaciones                              |
 
 ## Endpoints
+
+### Autenticación (públicos)
+
+| Método | Ruta             | Descripción                        | Respuesta |
+| ------ | ---------------- | ---------------------------------- | --------- |
+| POST   | `/auth/register` | Crear usuario                      | 201 |
+| POST   | `/auth/login`    | Iniciar sesión (devuelve el token) | 201 |
+
+### Recursos (requieren token)
 
 Cada entidad tiene un CRUD completo:
 
@@ -121,7 +143,19 @@ Ante datos inválidos (campo obligatorio faltante, formato incorrecto, valor neg
 
 ## Ejemplos de uso
 
-Crear una categoría (`POST /categoria`):
+Crear un usuario (`POST /auth/register`):
+
+```json
+{ "email": "admin@farmacia.com", "password": "1234" }
+```
+
+Iniciar sesión (`POST /auth/login`) → devuelve el token a usar en las demás peticiones:
+
+```json
+{ "email": "admin@farmacia.com", "password": "1234" }
+```
+
+Crear una categoría (`POST /categoria`, con el token en la cabecera):
 
 ```json
 { "nombre": "Analgésicos", "descripcion": "Para el dolor y la fiebre" }
@@ -157,10 +191,11 @@ Crear un empleado (`POST /empleado`):
 
 ## Notas
 
-- **Validaciones:** los datos de entrada se validan con `ValidationPipe` (requiere `class-validator` y `class-transformer` instalados). Si falta un campo obligatorio o un valor no es válido (por ejemplo, un precio negativo o un email mal formado), la API responde con error 400.
+- **Validaciones:** los datos de entrada se validan con `ValidationPipe` (requiere `class-validator` y `class-transformer`). Si falta un campo obligatorio o un valor no es válido, la API responde 400.
+- **Contraseñas:** se guardan hasheadas con bcrypt. En la tabla `usuario` nunca se ve la contraseña en texto plano, sino un hash tipo `$2b$10$...`.
 - **Precio:** al leer medicamentos, el campo `precio` llega como texto (por ejemplo `"1500.00"`), porque la columna `decimal` se devuelve como string. Al crear o actualizar, debe enviarse como número.
-- **Fechas:** `fechaVencimiento` y `fechaIngreso` se envían y devuelven como texto en formato ISO (por ejemplo `"2027-05-31"`), aunque en la base se almacenan como columnas de tipo `date`.
-- **Teléfono y DNI:** se almacenan como texto (`string`), no como número, para no perder ceros a la izquierda ni permitir símbolos como `+` o espacios.
+- **Fechas:** `fechaVencimiento` y `fechaIngreso` se envían y devuelven como texto en formato ISO (`"2027-05-31"`), aunque en la base se almacenan como columnas de tipo `date`.
+- **Teléfono y DNI:** se almacenan como texto (`string`), no como número, para no perder ceros a la izquierda ni símbolos como `+`.
 - **CORS:** habilitado para `http://localhost:5173`, el puerto por defecto del frontend con Vite.
 
 ## Base de datos con Docker
@@ -199,6 +234,14 @@ docker exec -it farmacia-mysql mysql -u root -p   # entrar a la consola de MySQL
 ```
 docker-compose.yml
 src/
+├── auth/                  # autenticación (login, register, JWT, guard)
+│   ├── dto/
+│   ├── auth.controller.ts
+│   ├── auth.module.ts
+│   ├── auth.service.ts
+│   └── jwt.strategy.ts
+├── usuario/
+│   └── entities/
 ├── categoria/
 │   ├── dto/
 │   ├── entities/
